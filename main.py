@@ -1,4 +1,4 @@
-from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain_cohere import CohereEmbeddings, ChatCohere
@@ -7,7 +7,6 @@ from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 import gradio as gr
 import os
-import shutil
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -26,8 +25,10 @@ Answer the question based on the above context: {query}
 # embedding_func = CohereEmbeddings(COHERE_API_KEY)
 embedding_func = OpenAIEmbeddings(api_key=os.getenv('OPENAI_API_KEY'))
 
-def load_documents():
+def load_documents(file):
   loader = DirectoryLoader(DATA_PATH, glob="*.md")
+  if not file is None:
+    loader = PyPDFLoader(file)
   documents = loader.load()
   return documents
 
@@ -44,19 +45,19 @@ def split_into_chunks(documents):
   return chunks
 
 def save_to_chroma(chunks: list[Document]):
-  # if already exists, remove first
-  if os.path.exists(CHROMA_PATH):
-    shutil.rmtree(CHROMA_PATH)
-  
   Chroma.from_documents(chunks, embedding_func, persist_directory=CHROMA_PATH)
   
-def generate_db():
-  docs = load_documents()
+def generate_db(file=None):
+  docs = load_documents(file)
   chunks = split_into_chunks(docs)
   save_to_chroma(chunks)
   print("Finished creating chroma DB")
 
-def process_query(query_text):
+def process_query(query_text, file):
+
+  if not file is None:
+    generate_db(file)
+
   db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_func)
 
   # return type of the search List[Tuple[Document, float]]
@@ -93,15 +94,17 @@ def take_console_input():
 def run_gradio_app():
   demo = gr.Interface(
     process_query,
-    inputs=["text"],
+    inputs=["text", gr.File(type="filepath", label="Upload a PDF")],
     outputs=["text", "text"],
-    title="Alice in Wonderland Expert Bot"
+    title="Document QA Chatbot",
+    description="Give a pdf document to ask questions about. If not given, will have the context of the 'Alice In Wonderland' book."
   )
 
   demo.launch()
 
 def main():
-  # generate_db()
+  if not os.path.exists(CHROMA_PATH):
+    generate_db()
   run_gradio_app()
   # take_console_input()
   pass

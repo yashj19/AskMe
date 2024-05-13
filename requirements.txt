@@ -8,4 +8,4 @@ tiktoken
 langchain_openai
 langchain_cohere
 gradio
-pdfplumber
+pypdf
