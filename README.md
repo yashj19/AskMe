@@ -12,4 +12,4 @@ By default, the chatbot is for the "Alice in Wonderland" book.
 ### On Console:
 1. run `pip install -r requirements.txt`
 2. in `main.py` comment `run_gradio_app()` and uncomment `take_console_input()`
-3. run 'python main.py`
+3. run `python main.py`
