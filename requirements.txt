@@ -1,0 +1,11 @@
+langchain
+unstructured
+"unstructured[md]"
+chromadb
+python-dotenv
+openai
+tiktoken
+langchain_openai
+langchain_cohere
+gradio
+pdfplumber
