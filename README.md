@@ -1,5 +1,4 @@
-# Document (Textbook) QA Chatbot
-
+# AskMe (Document QA Chatbot)
 A simple RAG-based chatbot made using LangChain, OpenAI embedding models, Cohere LLM, and ChromaDB. UI made with Gradio.
 By default, the chatbot is for the "Alice in Wonderland" book.
 
